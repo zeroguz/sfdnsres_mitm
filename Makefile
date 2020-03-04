@@ -6,7 +6,7 @@ TOPTARGETS := all clean
 
 OUTDIR		:=	out
 SD_ROOT     :=  $(OUTDIR)/sd
-TITLE_DIR   :=  $(SD_ROOT)/atmosphere/contents/4206900000000011
+TITLE_DIR   :=  $(SD_ROOT)/atmosphere/contents/0x4200000000000010
 
 $(TOPTARGETS): PACK
 
