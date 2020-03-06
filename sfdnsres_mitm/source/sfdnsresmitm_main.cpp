@@ -26,7 +26,7 @@ extern "C"
     u32 __nx_fs_num_sessions = 1;
     u32 __nx_fsdev_direntry_cache_size = 1;
 
-#define INNER_HEAP_SIZE 0x1000000
+#define INNER_HEAP_SIZE 0x50000
     size_t nx_inner_heap_size = INNER_HEAP_SIZE;
     char nx_inner_heap[INNER_HEAP_SIZE];
 
@@ -43,7 +43,7 @@ extern "C"
 namespace ams
 {
 
-    ncm::ProgramId CurrentProgramId = {0x4200000000000010ul};
+    ncm::ProgramId CurrentProgramId = {0x4206900000000012ul};
 
     namespace result
     {
@@ -75,48 +75,24 @@ void __libnx_initheap(void)
 
 void __appInit(void)
 {
-
-#define SOCK_BUFFERSIZE 0x1000
-    const SocketInitConfig socketInitConfig = {
-        .bsdsockets_version = 1,
-
-        .tcp_tx_buf_size = 0x800,
-        .tcp_rx_buf_size = 0x1000,
-        .tcp_tx_buf_max_size = 0x2000,
-        .tcp_rx_buf_max_size = 0x2000,
-
-        .udp_tx_buf_size = 0x2000,
-        .udp_rx_buf_size = 0x2000,
-
-        .sb_efficiency = 4,
-
-        .num_bsd_sessions = 3,
-        .bsd_service_type = BsdServiceType_User,
-    };
     hos::SetVersionForLibnx();
 
     sm::DoWithSession([&]() {
         R_ABORT_UNLESS(fsInitialize());
-        // R_ABORT_UNLESS(pmdmntInitialize());
-        // R_ABORT_UNLESS(pminfoInitialize());
-        // R_ABORT_UNLESS(splFsInitialize());
-        R_ABORT_UNLESS(socketInitialize(&socketInitConfig));
+        R_ABORT_UNLESS(pmdmntInitialize());
+        R_ABORT_UNLESS(pminfoInitialize());
+        R_ABORT_UNLESS(splFsInitialize());
     });
-
-    ams::CheckApiVersion();
 }
 
 void __appExit(void)
 {
     /* Cleanup services. */
-    socketExit();
-    //splFsExit();
-    //pminfoExit();
-    //pmdmntExit();
+    splFsExit();
+    pminfoExit();
+    pmdmntExit();
     fsExit();
 }
-
-FILE* g_logging_file = nullptr;
 
 struct SfdnsresManagerOptions
 {
@@ -127,16 +103,11 @@ struct SfdnsresManagerOptions
 
 int main(int argc, char** argv)
 {
-    g_logging_file = fopen("sfdnsres.log", "a+");
-
     constexpr sm::ServiceName MitmServiceName = sm::ServiceName::Encode("sfdnsres");
     sf::hipc::ServerManager<2, SfdnsresManagerOptions, 4> server_manager;
 
     R_ASSERT(server_manager.RegisterMitmServer<ams::mitm::sfdnsres::SfdnsresMitmService>(MitmServiceName));
 
     server_manager.LoopProcess();
-    fflush(g_logging_file);
-
-    fclose(g_logging_file);
     return 0;
 }

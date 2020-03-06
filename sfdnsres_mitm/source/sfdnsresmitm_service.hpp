@@ -58,14 +58,16 @@ namespace ams::mitm::sfdnsres
     public:
     protected:
         /* Overridden commands. */
-        Result GetAddrInfo(int arg,
-                           int timeout,
-                           sf::ClientProcessId pid,
+        Result GetAddrInfo(sf::Out<s32> ret,
+                           sf::Out<u32> bsd_errno,
+                           sf::Out<u32> packed_addrinfo_size,
+                           sf::OutBuffer response,
+                           u32 enable_nsd_resolve,
                            u64 pid_placeholder,
-                           sf::InBuffer node,
+                           // pid?
+                           sf::InBuffer host,
                            sf::InBuffer service,
-                           sf::InBuffer hints_serialized,
-                           sf::OutBuffer res_serialized);
+                           sf::InBuffer hints);
 
     public:
         DEFINE_SERVICE_DISPATCH_TABLE{

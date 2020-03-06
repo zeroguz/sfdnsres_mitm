@@ -1,6 +1,6 @@
 {
   "name": "sfdnsres.mitm",
-  "title_id": "0x4206900000000011",
+  "title_id": "0x4206900000000012",
   "main_thread_stack_size": "0x20000",
   "main_thread_priority": 43,
   "default_cpu_id": 3,
