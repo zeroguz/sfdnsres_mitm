@@ -18,6 +18,9 @@
 #include <stratosphere.hpp>
 #include <switch.h>
 
+#define IRAM_SAFE_START 0x40038000ull
+#define IRAM_SAFE_END 0x4003D000ull
+
 enum SfdnsresCmd : u32
 {
     // All cmds:
@@ -43,7 +46,7 @@ namespace ams::mitm::sfdnsres
     private:
         enum class CommandId
         {
-            GetAddrInfo = 6
+            GetAddrInfoRequest = 6
         };
 
     public:
@@ -58,20 +61,11 @@ namespace ams::mitm::sfdnsres
     public:
     protected:
         /* Overridden commands. */
-        Result GetAddrInfo(sf::Out<s32> ret,
-                           sf::Out<u32> bsd_errno,
-                           sf::Out<u32> packed_addrinfo_size,
-                           sf::OutBuffer response,
-                           u32 enable_nsd_resolve,
-                           u64 pid_placeholder,
-                           // pid?
-                           sf::InBuffer host,
-                           sf::InBuffer service,
-                           sf::InBuffer hints);
+        Result GetAddrInfoRequest(u32 cancel_handle, const sf::ClientProcessId& client_pid, bool use_nsd_resolve, const sf::InBuffer& host, const sf::InBuffer& service, const sf::InBuffer& hints, const sf::OutBuffer& out_addr_infos, sf::Out<u32> out_errno, sf::Out<s32> out_ret, sf::Out<u32> out_buf_len);
 
     public:
         DEFINE_SERVICE_DISPATCH_TABLE{
-            MAKE_SERVICE_COMMAND_META(GetAddrInfo),
+            MAKE_SERVICE_COMMAND_META(GetAddrInfoRequest),
         };
     };
 

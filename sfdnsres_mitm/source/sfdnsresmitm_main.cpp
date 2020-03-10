@@ -16,6 +16,7 @@
 #include <stratosphere.hpp>
 #include <switch.h>
 
+#include "debug.hpp"
 #include "sfdnsresmitm_service.hpp"
 
 extern "C"
@@ -78,6 +79,7 @@ void __appInit(void)
     hos::SetVersionForLibnx();
 
     sm::DoWithSession([&]() {
+        R_ABORT_UNLESS(smInitialize());
         R_ABORT_UNLESS(fsInitialize());
         R_ABORT_UNLESS(pmdmntInitialize());
         R_ABORT_UNLESS(pminfoInitialize());
@@ -92,6 +94,7 @@ void __appExit(void)
     pminfoExit();
     pmdmntExit();
     fsExit();
+    smExit();
 }
 
 struct SfdnsresManagerOptions
@@ -103,11 +106,14 @@ struct SfdnsresManagerOptions
 
 int main(int argc, char** argv)
 {
+    sts::debug::Initialize();
+
     constexpr sm::ServiceName MitmServiceName = sm::ServiceName::Encode("sfdnsres");
     sf::hipc::ServerManager<2, SfdnsresManagerOptions, 4> server_manager;
 
     R_ASSERT(server_manager.RegisterMitmServer<ams::mitm::sfdnsres::SfdnsresMitmService>(MitmServiceName));
 
     server_manager.LoopProcess();
+
     return 0;
 }

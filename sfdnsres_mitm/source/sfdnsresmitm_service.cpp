@@ -15,24 +15,47 @@
  */
 
 #include "sfdnsresmitm_service.hpp"
+#include "debug.hpp"
+#include <string>
 #include <switch.h>
 
-ams::Result ams::mitm::sfdnsres::SfdnsresMitmService::GetAddrInfo(sf::Out<s32> ret,
-                                                                  sf::Out<u32> bsd_errno,
-                                                                  sf::Out<u32> packed_addrinfo_size,
-                                                                  sf::OutBuffer response,
-                                                                  u32 enable_nsd_resolve,
-                                                                  u64 pid_placeholder,
-                                                                  // pid?
-                                                                  sf::InBuffer host,
-                                                                  sf::InBuffer service,
-                                                                  sf::InBuffer hints)
+ams::Result ams::mitm::sfdnsres::SfdnsresMitmService::GetAddrInfoRequest(u32 cancel_handle,
+                                                                         const sf::ClientProcessId& client_pid,
+                                                                         bool use_nsd_resolve,
+                                                                         const sf::InBuffer& host,
+                                                                         const sf::InBuffer& service,
+                                                                         const sf::InBuffer& hints,
+                                                                         const sf::OutBuffer& out_addr_infos,
+                                                                         sf::Out<u32> out_errno,
+                                                                         sf::Out<s32> out_ret,
+                                                                         sf::Out<u32> out_buf_len)
 {
-    u32 cancel_handle = 0;
-    size_t hints_size = 0;
-    void* out_buffer = NULL;
-    size_t out_buffer_size = 0;
-    u32* response_serialized_size = NULL;
-    sfdnsresGetAddrInfoRequest(cancel_handle, enable_nsd_resolve, reinterpret_cast<const char*>(host.GetPointer()), reinterpret_cast<const char*>(service.GetPointer()), reinterpret_cast<const char*>(hints.GetPointer()), hints_size, out_buffer, out_buffer_size, bsd_errno.GetPointer(), reinterpret_cast<s32*>(response.GetPointer()), response_serialized_size);
-    return ams::ResultSuccess();
+    ams::Result res;
+    sts::debug::DebugLog("Host: %s\n", reinterpret_cast<const char*>(host.GetPointer()));
+    sts::debug::DebugLog("Service: %s\n", reinterpret_cast<const char*>(service.GetPointer()));
+    sts::debug::DebugLog("Hints: 0x%x\n", reinterpret_cast<const char*>(hints.GetPointer()));
+    sts::debug::DebugLog("out_buf_len: %d\n", out_buf_len.GetValue());
+    sts::debug::DebugLog("Cancel Handle: %d\n", cancel_handle);
+    u32 ownCancelHandle = 0;
+    res = sfdnsresGetCancelHandleRequest(&ownCancelHandle);
+
+    sts::debug::DebugLog("Result CancelHandleRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
+    sts::debug::DebugLog("Own Cancel Handle: %d\n\n", ownCancelHandle);
+
+    res = sfdnsresGetAddrInfoRequest(cancel_handle,
+                                     use_nsd_resolve,
+                                     reinterpret_cast<const char*>(host.GetPointer()),
+                                     reinterpret_cast<const char*>(service.GetPointer()),
+                                     reinterpret_cast<const void*>(hints.GetPointer()),
+                                     hints.GetSize(),
+                                     reinterpret_cast<void*>(out_addr_infos.GetPointer()),
+                                     out_addr_infos.GetSize(),
+                                     out_errno.GetPointer(),
+                                     out_ret.GetPointer(),
+                                     out_buf_len.GetPointer());
+    sts::debug::DebugLog("Result GetAddrInfoRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
+    sts::debug::DebugLog("out_buf_len: %d\n", out_buf_len.GetValue());
+
+    ams::exosphere::ForceRebootToRcm();
+    return ams::Result::SuccessValue;
 }
