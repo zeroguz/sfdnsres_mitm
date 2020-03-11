@@ -16,6 +16,7 @@
 
 #include "sfdnsresmitm_service.hpp"
 #include "debug.hpp"
+#include "utils.hpp"
 #include <string>
 #include <switch.h>
 
@@ -42,7 +43,7 @@ ams::Result ams::mitm::sfdnsres::SfdnsresMitmService::GetAddrInfoRequest(u32 can
     sts::debug::DebugLog("Result CancelHandleRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
     sts::debug::DebugLog("Own Cancel Handle: %d\n\n", ownCancelHandle);
 
-    res = sfdnsresGetAddrInfoRequest(cancel_handle,
+    res = sfdnsresGetAddrInfoRequest(ownCancelHandle,
                                      use_nsd_resolve,
                                      reinterpret_cast<const char*>(host.GetPointer()),
                                      reinterpret_cast<const char*>(service.GetPointer()),
@@ -53,9 +54,11 @@ ams::Result ams::mitm::sfdnsres::SfdnsresMitmService::GetAddrInfoRequest(u32 can
                                      out_errno.GetPointer(),
                                      out_ret.GetPointer(),
                                      out_buf_len.GetPointer());
+
     sts::debug::DebugLog("Result GetAddrInfoRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
     sts::debug::DebugLog("out_buf_len: %d\n", out_buf_len.GetValue());
+    //sts::debug::DebugLog("out_errno: %d\n", out_buf_len.GetValue());
+    //sts::debug::DebugLog("out_buf_len: %d\n", out_buf_len.GetValue());
 
-    ams::exosphere::ForceRebootToRcm();
-    return ams::Result::SuccessValue;
+    return res;
 }
