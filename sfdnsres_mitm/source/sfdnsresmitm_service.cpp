@@ -19,6 +19,14 @@
 #include "utils.hpp"
 #include <string>
 #include <switch.h>
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+#include <switch/services/sfdnsres.h>
+#ifdef __cplusplus
+}
+#endif
 
 namespace ams::mitm::sfdnsres
 {
