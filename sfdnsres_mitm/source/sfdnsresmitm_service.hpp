@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include "hostsconfig.hpp"
 #include <stratosphere.hpp>
 #include <switch.h>
 
@@ -58,7 +59,6 @@ namespace ams::mitm::sfdnsres
             return true;
         }
 
-    public:
     protected:
         /* Overridden commands. */
         Result GetAddrInfoRequest(u32 cancel_handle, const sf::ClientProcessId& client_pid, bool use_nsd_resolve, const sf::InBuffer& host, const sf::InBuffer& service, const sf::InBuffer& hints, const sf::OutBuffer& out_addr_infos, sf::Out<u32> out_errno, sf::Out<s32> out_ret, sf::Out<u32> out_buf_len);
@@ -67,6 +67,9 @@ namespace ams::mitm::sfdnsres
         DEFINE_SERVICE_DISPATCH_TABLE{
             MAKE_SERVICE_COMMAND_META(GetAddrInfoRequest),
         };
+
+    private:
+        config::Hosts gHostConfig;
     };
 
 } // namespace ams::mitm::sfdnsres

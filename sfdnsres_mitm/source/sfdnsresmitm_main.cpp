@@ -17,6 +17,7 @@
 #include <switch.h>
 
 #include "debug.hpp"
+#include "hostsconfig.hpp"
 #include "sfdnsresmitm_service.hpp"
 
 extern "C"

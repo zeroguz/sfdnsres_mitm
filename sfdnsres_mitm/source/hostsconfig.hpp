@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <netinet/in.h>
 #include <stratosphere.hpp>
 #include <string>
 #include <switch.h>
@@ -11,12 +12,12 @@ namespace ams::mitm::sfdnsres::config
     public:
         Hosts();
         ~Hosts();
-        u32 getAddr(std::string name)
+        sockaddr_in getAddr(std::string name)
         {
-            return g_hosts[name];
+            return gHosts[name];
         };
 
     private:
-        std::map<std::string, u32> g_hosts;
+        std::map<std::string, sockaddr_in> gHosts;
     };
 } // namespace ams::mitm::sfdnsres::config
