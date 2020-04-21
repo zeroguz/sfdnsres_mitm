@@ -16,7 +16,9 @@
 
 #include "sfdnsresmitm_service.hpp"
 #include "debug.hpp"
+#include "sys/socket.h"
 #include "utils.hpp"
+
 #include <string>
 #include <switch.h>
 #ifdef __cplusplus
@@ -27,6 +29,19 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
+namespace ams::mitm::sfdnsres::util
+{
+    bool getAddr(std::string name, sockaddr_in& addr)
+    {
+        if (globalHostMap.count(name) > 0)
+        {
+            addr = globalHostMap.at(name);
+            return true;
+        }
+        return false;
+    };
+} // namespace ams::mitm::sfdnsres::util
 
 namespace ams::mitm::sfdnsres
 {
@@ -49,7 +64,12 @@ namespace ams::mitm::sfdnsres
         sts::debug::DebugLog("Cancel Handle: %d\n", cancel_handle);
         u32 ownCancelHandle = 0;
         res = sfdnsresGetCancelHandleRequest(&ownCancelHandle);
-
+        sockaddr_in addr;
+        if (ams::mitm::sfdnsres::util::getAddr(std::string(reinterpret_cast<const char*>(host.GetPointer())), addr))
+        {
+            ams::mitm::sfdnsres::util::AddrInfo addrInfo;
+            sts::debug::DebugLog("Access to %s\n logged", reinterpret_cast<const char*>(host.GetPointer()));
+        }
         sts::debug::DebugLog("Result CancelHandleRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
         sts::debug::DebugLog("Own Cancel Handle: %d\n\n", ownCancelHandle);
 
@@ -67,6 +87,7 @@ namespace ams::mitm::sfdnsres
 
         sts::debug::DebugLog("Result GetAddrInfoRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
         sts::debug::DebugLog("out_addr_infos.GetSize: %d\n", out_addr_infos.GetSize());
+        sts::debug::DebugLog("Map Size: %d\n", ams::mitm::sfdnsres::util::globalHostMap.size());
         //sts::debug::DebugLog("out_errno: %d\n", out_buf_len.GetValue());
         //sts::debug::DebugLog("out_buf_len: %d\n", out_buf_len.GetValue());
         exosphere::ForceRebootToRcm();

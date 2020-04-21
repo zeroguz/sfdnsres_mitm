@@ -17,8 +17,19 @@
 #include <switch.h>
 
 #include "debug.hpp"
-#include "hostsconfig.hpp"
 #include "sfdnsresmitm_service.hpp"
+#include "utils.hpp"
+
+#include <arpa/inet.h>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <sys/socket.h>
+
+namespace ams::mitm::sfdnsres::util
+{
+    std::map<std::string, sockaddr_in> globalHostMap;
+}
 
 extern "C"
 {
@@ -108,6 +119,36 @@ struct SfdnsresManagerOptions
 int main(int argc, char** argv)
 {
     sts::debug::Initialize();
+
+    fsdevMountSdmc();
+
+    std::ifstream hostfile = std::ifstream("/sfdnsres_mitm/hosts");
+    std::string line;
+    sts::debug::DebugLog("Open?: %d\n", hostfile.is_open());
+    while (std::getline(hostfile, line))
+    {
+        sts::debug::DebugLog("Line: %s\n", line.c_str());
+        if (!(line.at(0) == '#'))
+        {
+            std::istringstream lineStream = std::istringstream(line);
+            std::string ipString;
+            std::string name;
+            sockaddr_in ip;
+            lineStream >> ipString;
+            if (!(inet_pton(AF_INET, ipString.c_str(), &(ip.sin_addr))))
+            {
+                if (!(inet_pton(AF_INET6, ipString.c_str(), &(ip.sin_addr))))
+                {
+                    continue;
+                }
+            }
+            while (lineStream >> name)
+            {
+                ams::mitm::sfdnsres::util::globalHostMap.emplace(name, ip);
+                sts::debug::DebugLog("Added: %s\n", name.c_str());
+            }
+        }
+    }
 
     constexpr sm::ServiceName MitmServiceName = sm::ServiceName::Encode("sfdnsres");
     sf::hipc::ServerManager<2, SfdnsresManagerOptions, 4> server_manager;

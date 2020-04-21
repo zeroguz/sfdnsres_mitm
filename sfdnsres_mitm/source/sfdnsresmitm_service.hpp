@@ -15,7 +15,6 @@
  */
 
 #pragma once
-#include "hostsconfig.hpp"
 #include <stratosphere.hpp>
 #include <switch.h>
 
@@ -67,9 +66,6 @@ namespace ams::mitm::sfdnsres
         DEFINE_SERVICE_DISPATCH_TABLE{
             MAKE_SERVICE_COMMAND_META(GetAddrInfoRequest),
         };
-
-    private:
-        config::Hosts gHostConfig;
     };
 
 } // namespace ams::mitm::sfdnsres
