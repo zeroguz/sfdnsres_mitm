@@ -18,9 +18,6 @@
 #include <stratosphere.hpp>
 #include <switch.h>
 
-#define IRAM_SAFE_START 0x40038000ull
-#define IRAM_SAFE_END 0x4003D000ull
-
 enum SfdnsresCmd : u32
 {
     // All cmds:
@@ -36,6 +33,7 @@ enum SfdnsresCmd : u32
     // SfdnsresCmd_CancelSocketCall = 9,
     // SfdnsresCmd_? = 10,
     // SfdnsresCmd_ClearDnsIpServerAddressArray = 11,
+    SfdnsresCmd_GetAddrInfoWithOptions = 12,
 };
 
 namespace ams::mitm::sfdnsres
@@ -46,7 +44,8 @@ namespace ams::mitm::sfdnsres
     private:
         enum class CommandId
         {
-            GetAddrInfoRequest = 6
+            GetAddrInfoRequest = 6,
+            GetAddrInfoRequestWithOptions = 12
         };
 
     public:
@@ -60,11 +59,24 @@ namespace ams::mitm::sfdnsres
 
     protected:
         /* Overridden commands. */
+        Result GetAddrInfoRequestWithOptions(u32 cancel_handle,
+                                             sf::InBuffer const& host,
+                                             sf::InBuffer const& service,
+                                             sf::InBuffer const& hints,
+                                             sf::OutBuffer const& out_addr_infos,
+                                             sf::Out<unsigned int, void> u1,
+                                             sf::Out<int, void> u2,
+                                             unsigned int u3,
+                                             sf::InBuffer const& u4,
+                                             unsigned int u5,
+                                             sf::Out<int, void> u6,
+                                             sf::Out<int, void> u7);
         Result GetAddrInfoRequest(u32 cancel_handle, const sf::ClientProcessId& client_pid, bool use_nsd_resolve, const sf::InBuffer& host, const sf::InBuffer& service, const sf::InBuffer& hints, const sf::OutBuffer& out_addr_infos, sf::Out<u32> out_errno, sf::Out<s32> out_ret, sf::Out<u32> out_buf_len);
 
     public:
         DEFINE_SERVICE_DISPATCH_TABLE{
             MAKE_SERVICE_COMMAND_META(GetAddrInfoRequest),
+            MAKE_SERVICE_COMMAND_META(GetAddrInfoRequestWithOptions),
         };
     };
 

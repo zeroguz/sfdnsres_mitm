@@ -18,6 +18,7 @@
 #include "debug.hpp"
 #include "sys/socket.h"
 #include "utils.hpp"
+#include <arpa/inet.h>
 
 #include <string>
 #include <switch.h>
@@ -45,6 +46,24 @@ namespace ams::mitm::sfdnsres::util
 
 namespace ams::mitm::sfdnsres
 {
+    Result SfdnsresMitmService::GetAddrInfoRequestWithOptions(u32 cancel_handle,
+                                                              sf::InBuffer const& host,
+                                                              sf::InBuffer const& service,
+                                                              sf::InBuffer const& hints,
+                                                              sf::OutBuffer const& out_addr_infos,
+                                                              sf::Out<unsigned int, void> u1,
+                                                              sf::Out<int, void> u2,
+                                                              unsigned int u3,
+                                                              sf::InBuffer const& u4,
+                                                              unsigned int u5,
+                                                              sf::Out<int, void> u6,
+                                                              sf::Out<int, void> u7)
+    {
+        Result res;
+        exosphere::ForceRebootToRcm();
+        return res;
+    }
+
     Result SfdnsresMitmService::GetAddrInfoRequest(u32 cancel_handle,
                                                    const sf::ClientProcessId& client_pid,
                                                    bool use_nsd_resolve,
@@ -69,6 +88,12 @@ namespace ams::mitm::sfdnsres
         {
             ams::mitm::sfdnsres::util::AddrInfo addrInfo;
             sts::debug::DebugLog("Access to %s\n logged", reinterpret_cast<const char*>(host.GetPointer()));
+
+            addrInfo.magic = htonl(0xBEEFCAFE);
+            addrInfo.ai_flags = 0;
+            addrInfo.ai_family = AF_INET;
+            addrInfo.ai_socktype = 0;
+            addrInfo.ai_protocol = 0;
         }
         sts::debug::DebugLog("Result CancelHandleRequest: 0x%X (2%03d-%04d)\n", res.GetValue(), res.GetModule(), res.GetDescription());
         sts::debug::DebugLog("Own Cancel Handle: %d\n\n", ownCancelHandle);

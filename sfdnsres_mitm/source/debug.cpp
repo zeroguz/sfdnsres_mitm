@@ -18,7 +18,7 @@ namespace sts::debug
     namespace
     {
 
-        ams::os::Mutex g_log_mutex;
+        ams::os::Mutex g_log_mutex(false);
     }
 
     size_t g_curr_log_offset = 0;
