@@ -64,6 +64,21 @@ namespace ams::mitm::sfdnsres
         return res;
     }
 
+    Result SfdnsresMitmService::GetHostByNameRequest(u32 cancel_handle,
+                                                     u8 in1,
+                                                     u64 in2,
+                                                     const sf::ClientProcessId&,
+                                                     sf::InBuffer const& in3,
+                                                     const sf::OutBuffer& out,
+                                                     sf::Out<u32> out_errno,
+                                                     sf::Out<s32> out_ret,
+                                                     sf::Out<u32> out_buf_len)
+    {
+        Result res;
+        exosphere::ForceRebootToRcm();
+        return res;
+    }
+
     Result SfdnsresMitmService::GetAddrInfoRequest(u32 cancel_handle,
                                                    const sf::ClientProcessId& client_pid,
                                                    bool use_nsd_resolve,
