@@ -97,6 +97,10 @@ void __appInit(void)
         R_ABORT_UNLESS(pminfoInitialize());
         R_ABORT_UNLESS(splFsInitialize());
     });
+
+    R_ABORT_UNLESS(fsdevMountSdmc());
+
+    sts::debug::Initialize();
 }
 
 void __appExit(void)
@@ -118,9 +122,6 @@ struct SfdnsresManagerOptions
 
 int main(int argc, char** argv)
 {
-    sts::debug::Initialize();
-
-    fsdevMountSdmc();
 
     std::ifstream hostfile = std::ifstream("/sfdnsres_mitm/hosts");
     std::string line;
