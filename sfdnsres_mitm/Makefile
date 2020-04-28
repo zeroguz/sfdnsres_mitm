@@ -63,7 +63,8 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export BUILD_EXEFS_SRC := $(TOPDIR)/$(EXEFS_SRC)
 
-export KIP_JSON := $(TOPDIR)/res/sfdnsres_mitm.json
+export APP_JSON := $(TOPDIR)/res/$(TARGET).json
+export KIP_JSON := $(TOPDIR)/res/$(TARGET).json
 
 .PHONY: $(BUILD) clean all
 
